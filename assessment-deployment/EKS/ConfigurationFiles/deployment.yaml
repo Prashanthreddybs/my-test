@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: my-app1
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+     readinessprob:
+      httpGet:
+       path:/healthz
+       port:8080
+     initialdelaySeconds: 30
+     periodSeconds: 5
+     timeoutSeconds: 5
+     failureThhreshouls :5
+  
+    livenessProbe:
+      httpGet:
+       path: /healthz
+       port: 8080
+       initialdelaySeconds: 30
+        periodSeconds: 5
+
+      
+     
+
+
+
