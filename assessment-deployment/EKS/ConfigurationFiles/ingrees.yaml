@@ -1,27 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: app-ingress
+  name: app-php
   namespace: my-app 
-  annotations:
-    nginx.ingress.kubernetes.io/ingrees.global-ip-name: "10.0.1.1/24" 
 spec:
   rules:
   - host: myapp.com
     http:
       paths:
-      - path: /service1
+      - path: /
         pathType: Prefix
         backend:
           service:
-            name: my-app1
-            port:
-              number: 80
-      - path:
-        pathType: Prefix
-        backend:
-          service:
-            name: nginx
+            name: php
             port:
               number: 80
 
