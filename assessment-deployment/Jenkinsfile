@@ -56,7 +56,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploying Nginx Application') {
+        stage('Deploying PHP  Application') {
             steps{
                 script{
                     dir('EKS/ConfigurationFiles') {
