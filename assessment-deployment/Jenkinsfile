@@ -1,19 +1,22 @@
 pipeline {
     agent any
     environment {
+        AWS_ACCESS_KEY_ID = credentials('Access-key')
+        AWS_SECRET_ACCESS_KEY = credentials('secret')
+        AWS_DEFAULT_REGION = "us-east-1"
     }
     stages {
         stage('Checkout SCM'){
             steps{
                 script{
-                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Prashanthreddybs/my-test.git']])
+                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Prashanthreddybs/my-test']])
                 }
             }
         }
         stage('Initializing Terraform'){
             steps{
                 script{
-                    dir('EKS'){
+                    dir('assessment-deployment/EKS'){
                         sh 'terraform init'
                     }
                 }
@@ -22,7 +25,7 @@ pipeline {
         stage('Formatting Terraform Code'){
             steps{
                 script{
-                    dir('EKS'){
+                    dir('assessment-deployment/EKS'){
                         sh 'terraform fmt'
                     }
                 }
@@ -31,7 +34,7 @@ pipeline {
         stage('Validating Terraform'){
             steps{
                 script{
-                    dir('EKS'){
+                    dir('assessment-deployment/EKS'){
                         sh 'terraform validate'
                     }
                 }
@@ -40,18 +43,18 @@ pipeline {
         stage('Previewing the Infra using Terraform'){
             steps{
                 script{
-                    dir('EKS'){
+                    dir('assessment-deployment/EKS'){
                         sh 'terraform plan'
                     }
-                    input(message: "Are you sure to proceed?", ok: "Proceed")
                 }
             }
         }
-        stage('Creating/Destroying an EKS Cluster'){
+        
+      stage('Creating/Destroying an EKS Cluster'){
             steps{
                 script{
-                    dir('EKS') {
-                        sh 'terraform $action --auto-approve'
+                    dir('assessment-deployment/EKS') {
+                        sh 'terraform apply --auto-approve'
                     }
                 }
             }
@@ -59,15 +62,14 @@ pipeline {
         stage('Deploying PHP  Application') {
             steps{
                 script{
-                    dir('EKS/ConfigurationFiles') {
-                        sh 'aws eks update-kubeconfig --name my-eks-cluster'
+                    dir('assessment-deployment/EKS/ConfigurationFiles') {
+                        sh 'aws eks update-kubeconfig --region ap-south-1 --name test1'
                         sh 'kubectl apply -f deployment.yaml'
                         sh 'kubectl apply -f service.yaml'
                         sh 'kubectl apply -f autoscale.yaml'
-                        sh 'kubectl apply -f ingress.yaml'  
                     }
                 }
             }
-        }
+        }  
     }
 }
