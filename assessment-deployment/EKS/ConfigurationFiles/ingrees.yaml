@@ -2,7 +2,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: app-php
-  namespace: my-app 
 spec:
   rules:
   - host: myapp.com
